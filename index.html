@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Beach Conditions</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#FF7733">
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" href="icon-180.png">
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #7FDBFF, #001f3f);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            background-size: 300% 300%;
+            animation: sunsetFlow 20s ease infinite;
+        }
+
+        @keyframes sunsetFlow {
+            0% { background-position: 0% 50%; background-image: linear-gradient(135deg, #6B46C1, #9F7AEA, #F687B3, #FBB6C1, #FF9A9E, #FFB851, #FF7733, #E53E3E); }
+            50% { background-position: 100% 50%; background-image: linear-gradient(135deg, #E53E3E, #FF7733, #FFB851, #FF9A9E, #FBB6C1, #F687B3, #9F7AEA, #6B46C1); }
+            100% { background-position: 0% 50%; background-image: linear-gradient(135deg, #6B46C1, #9F7AEA, #F687B3, #FBB6C1, #FF9A9E, #FFB851, #FF7733, #E53E3E); }
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+        }
+
+        h1 { font-size: 3.4em; margin: 0; text-shadow: 3px 3px 10px rgba(0,0,0,0.8); position: relative; z-index: 1; }
+        header p { font-size: 1.4em; margin: 15px 0 0; opacity: 0.95; position: relative; z-index: 1; }
+
+        .container { max-width: 1200px; margin: auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+        section { background: rgba(0, 31, 63, 0.7); padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        h2 { color: #FFB851; border-bottom: 2px solid #F687B3; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 10px; background: rgba(255, 255, 255, 0.1); margin: 5px 0; border-radius: 8px; }
+        .current { font-size: 1.5em; text-align: center; background: rgba(255, 182, 193, 0.3); padding: 20px; border-radius: 15px; }
+        .loading { text-align: center; font-style: italic; }
+        footer { text-align: center; margin-top: 40px; color: #FBB6C1; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Solana Beach</h1>
+        <p>Tides • Weather • Swell • Water Temp</p>
+    </header>
+
+    <div class="container">
+        <section id="weather">
+            <h2>Current Weather & Forecast</h2>
+            <div id="current-weather" class="current loading">Loading weather...</div>
+            <h3>7-Day Forecast</h3>
+            <ul id="daily-forecast"></ul>
+        </section>
+
+        <section id="swell">
+            <h2>Current Swell, Waves & Ocean Temp</h2>
+            <div id="current-swell" class="current loading">Loading marine data...</div>
+            <h3>Daily Swell & Water Temp</h3>
+            <ul id="daily-swell"></ul>
+        </section>
+
+        <section id="tides">
+            <h2>Tide Predictions (Next 7 Days)</h2>
+            <p>Based on NOAA data for La Jolla</p>
+            <ul id="tide-list" class="loading">Loading tides...</ul>
+        </section>
+    </div>
+
+    <footer>Data: Open-Meteo & NOAA • Updated live</footer>
+
+    <script>
+        // Register service worker for offline/PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        const lat = 32.9933;
+        const lon = -117.2705;
+        const noaaStation = "9410230";
+
+        function getDirectionArrow(deg) {
+            if (!deg) return '';
+            const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+            return dirs[Math.round(deg / 22.5) % 16];
+        }
+
+        function cToF(c) { return c !== null ? (c * 9/5 + 32).toFixed(1) : 'N/A'; }
+
+        async function fetchWeather() {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,wave_height_max,swell_wave_height_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FLos_Angeles`;
+            const data = await (await fetch(url)).json();
+
+            const current = data.current;
+            const descMap = {0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",45:"Fog",61:"Rain",80:"Showers",95:"Thunderstorm"};
+            document.getElementById('current-weather').innerHTML = `<strong>${current.temperature_2m}°F</strong><br>${descMap[current.weather_code]||"Cloudy"}<br>Wind: ${current.wind_speed_10m} mph`;
+            document.getElementById('current-weather').classList.remove('loading');
+
+            const list = document.getElementById('daily-forecast');
+            data.daily.time.forEach((date, i) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${new Date(date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</strong>: 
+                    High ${data.daily.temperature_2m_max[i]}°F / Low ${data.daily.temperature_2m_min[i]}°F<br>
+                    Sunrise: ${new Date(data.daily.sunrise[i]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})} | 
+                    Sunset: ${new Date(data.daily.sunset[i]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}<br>
+                    Max Swell: ${(data.daily.swell_wave_height_max[i]*3.281).toFixed(1)} ft`;
+                list.appendChild(li);
+            });
+        }
+
+        async function fetchMarine() {
+            const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height,swell_wave_height,swell_wave_period,swell_wave_direction,water_temperature&timezone=America%2FLos_Angeles`;
+            const data = await (await fetch(url)).json();
+            const h = data.hourly;
+            const nowIdx = h.time.findIndex(t => new Date(t) >= new Date()) || 0;
+
+            const swellH = (h.swell_wave_height[nowIdx] * 3.281).toFixed(1);
+            const period = h.swell_wave_period[nowIdx]?.toFixed(0) || 'N/A';
+            const dir = getDirectionArrow(h.swell_wave_direction[nowIdx]);
+            const waveH = (h.wave_height[nowIdx] * 3.281).toFixed(1);
+            const waterF = cToF(h.water_temperature[nowIdx]);
+
+            document.getElementById('current-swell').innerHTML = `
+                <strong>Ocean: ${waterF}°F</strong><br>
+                Swell: ${swellH} ft @ ${period}s ${dir}<br>
+                Waves: ${waveH} ft
+            `;
+            document.getElementById('current-swell').classList.remove('loading');
+
+            // Daily summary logic (same as before)
+            const days = {};
+            h.time.forEach((t,i) => {
+                const d = new Date(t).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+                if (!days[d]) days[d] = {swell:[],temp:[]};
+                if (h.swell_wave_height[i]) days[d].swell.push(h.swell_wave_height[i]);
+                if (h.water_temperature[i]) days[d].temp.push(h.water_temperature[i]);
+            });
+
+            const list = document.getElementById('daily-swell');
+            Object.keys(days).slice(0,7).forEach(d => {
+                const maxSwell = Math.max(...days[d].swell) * 3.281;
+                const avgTemp = cToF(days[d].temp.reduce((a,b)=>a+b)/days[d].temp.length);
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${d}</strong>: Temp ~${avgTemp}°F<br>Max Swell ~${maxSwell.toFixed(1)} ft`;
+                list.appendChild(li);
+            });
+        }
+
+        async function fetchTides() {
+            const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
+            const end = new Date(Date.now() + 7*24*60*60*1000).toISOString().slice(0,10).replace(/-/g,'');
+            const url = `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&station=${noaaStation}&begin_date=${today}&end_date=${end}&datum=MLLW&time_zone=lst_ldt&units=english&interval=hilo&format=json`;
+            const data = await (await fetch(url)).json();
+
+            const list = document.getElementById('tide-list');
+            list.classList.remove('loading');
+            data.predictions?.forEach(p => {
+                const li = document.createElement('li');
+                const time = new Date(p.t).toLocaleString([], {weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
+                li.innerHTML = `<strong>${time}</strong>: ${p.type==='H'?'High':'Low'} Tide — ${p.v} ft`;
+                list.appendChild(li);
+            });
+        }
+
+        fetchWeather();
+        fetchMarine();
+        fetchTides();
+    </script>
+</body>
+</html>
