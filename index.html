@@ -115,7 +115,7 @@
         // Listen for location changes
         window.addEventListener('location-selected', function(event) {
             const location = event.detail;
-            if (!location || typeof location.lat === 'undefined' || typeof location.lon === 'undefined') {
+            if (!location || isNaN(location.lat) || isNaN(location.lon)) {
                 console.error('Invalid location data');
                 return;
             }

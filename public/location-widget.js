@@ -36,12 +36,12 @@
 
     // Parse coordinate input (format: "lat, lon")
     function parseCoordinates(text) {
-        const coordPattern = /^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/;
+        const coordPattern = /^(-?\d+\.?\d+)\s*,\s*(-?\d+\.?\d+)$/;
         const match = text.trim().match(coordPattern);
         if (match) {
             const lat = parseFloat(match[1]);
             const lon = parseFloat(match[2]);
-            if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+            if (!isNaN(lat) && !isNaN(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
                 return { lat, lon };
             }
         }
@@ -121,15 +121,24 @@
 
         // Handle location selection
         function selectLocation(location) {
-            input.value = location.display_name || `${location.lat}, ${location.lon}`;
+            // Validate location data
+            const lat = parseFloat(location.lat);
+            const lon = parseFloat(location.lon);
+            
+            if (isNaN(lat) || isNaN(lon)) {
+                console.error('Invalid location coordinates');
+                return;
+            }
+            
+            input.value = location.display_name || `${lat}, ${lon}`;
             suggestions.style.display = 'none';
             
             // Emit custom event
             const event = new CustomEvent('location-selected', {
                 detail: {
-                    display_name: location.display_name || `Coordinates: ${location.lat}, ${location.lon}`,
-                    lat: parseFloat(location.lat),
-                    lon: parseFloat(location.lon)
+                    display_name: location.display_name || `Coordinates: ${lat}, ${lon}`,
+                    lat: lat,
+                    lon: lon
                 }
             });
             window.dispatchEvent(event);
