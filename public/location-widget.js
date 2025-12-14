@@ -10,6 +10,12 @@
  * 1. Include location-widget.css and location-widget.js in your HTML
  * 2. Call createLocationWidget() to initialize
  * 3. Listen for 'location-selected' event on window
+ * 
+ * Note: This widget uses the free OpenStreetMap Nominatim API which has rate limits.
+ * For production/high-traffic applications, consider:
+ * - Self-hosting a Nominatim instance
+ * - Using a commercial geocoding provider
+ * - Implementing additional caching/throttling
  */
 
 (function() {
