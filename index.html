@@ -14,6 +14,10 @@
     <link rel="apple-touch-icon" href="icon-180.png">
     <link rel="manifest" href="manifest.json">
 
+    <!-- Location Widget -->
+    <link rel="stylesheet" href="public/location-widget.css">
+    <script src="public/location-widget.js"></script>
+
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -99,9 +103,47 @@
             navigator.serviceWorker.register('sw.js');
         }
 
-        const lat = 32.9933;
-        const lon = -117.2705;
+        // Default location: Solana Beach
+        let lat = 32.9933;
+        let lon = -117.2705;
         const noaaStation = "9410230";
+
+        // Initialize location widget
+        createLocationWidget();
+
+        // Listen for location changes
+        window.addEventListener('location-selected', function(event) {
+            const location = event.detail;
+            console.log('Location changed to:', location);
+            
+            // Update coordinates
+            lat = location.lat;
+            lon = location.lon;
+            
+            // Update header with new location
+            const headerTitle = document.querySelector('header h1');
+            const displayName = location.display_name.split(',')[0]; // Get first part of name
+            headerTitle.textContent = displayName;
+            
+            // Refresh all data for new location
+            refreshAllData();
+        });
+
+        function refreshAllData() {
+            // Clear existing data
+            document.getElementById('current-weather').innerHTML = '<span class="loading">Loading weather...</span>';
+            document.getElementById('current-weather').classList.add('loading');
+            document.getElementById('daily-forecast').innerHTML = '';
+            document.getElementById('current-swell').innerHTML = '<span class="loading">Loading marine data...</span>';
+            document.getElementById('current-swell').classList.add('loading');
+            document.getElementById('daily-swell').innerHTML = '';
+            
+            // Fetch new data
+            fetchWeather();
+            fetchMarine();
+            // Note: Tide data still uses NOAA station for La Jolla
+            // To support dynamic tide stations, would need NOAA station lookup
+        }
 
         function getDirectionArrow(deg) {
             if (!deg) return '';

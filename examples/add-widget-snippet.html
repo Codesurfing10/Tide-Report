@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Widget Example</title>
+    
+    <!-- Include the location widget styles and script -->
+    <link rel="stylesheet" href="../public/location-widget.css">
+    <script src="../public/location-widget.js"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #7FDBFF, #001f3f);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            padding-top: 100px; /* Space for the widget */
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 31, 63, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        
+        h1 {
+            color: #FFB851;
+            margin-top: 0;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .selected-location {
+            background: rgba(255, 182, 193, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            min-height: 100px;
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        pre {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Location Widget Integration Example</h1>
+        
+        <div class="info-box">
+            <h2>How to Use</h2>
+            <p>The location widget appears in the top-left corner. Try these:</p>
+            <ul>
+                <li>Type a city name: <code>San Francisco</code></li>
+                <li>Type coordinates: <code>37.7749, -122.4194</code></li>
+                <li>Type any place worldwide: <code>Tokyo, Japan</code></li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h2>Integration Code</h2>
+            <p>Add these lines to your HTML:</p>
+            <pre><code>&lt;!-- Include CSS and JS --&gt;
+&lt;link rel="stylesheet" href="public/location-widget.css"&gt;
+&lt;script src="public/location-widget.js"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+    // Initialize the widget
+    createLocationWidget();
+    
+    // Listen for location selection
+    window.addEventListener('location-selected', function(event) {
+        const location = event.detail;
+        console.log('Selected location:', location);
+        console.log('Display name:', location.display_name);
+        console.log('Latitude:', location.lat);
+        console.log('Longitude:', location.lon);
+        
+        // Use the location data for your app
+        // e.g., fetch tide data, update map, etc.
+    });
+&lt;/script&gt;</code></pre>
+        </div>
+        
+        <div class="selected-location">
+            <h2>Selected Location</h2>
+            <div id="location-display">
+                <p><em>No location selected yet. Try the widget above!</em></p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize the location widget
+        createLocationWidget();
+        
+        // Listen for location selection events
+        window.addEventListener('location-selected', function(event) {
+            const location = event.detail;
+            console.log('Location selected:', location);
+            
+            // Update the display
+            const display = document.getElementById('location-display');
+            display.innerHTML = `
+                <p><strong>Location:</strong> ${location.display_name}</p>
+                <p><strong>Latitude:</strong> ${location.lat}</p>
+                <p><strong>Longitude:</strong> ${location.lon}</p>
+                <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">
+                    ✓ This data can now be used to fetch tide, weather, or other location-based information!
+                </p>
+            `;
+        });
+    </script>
+</body>
+</html>
