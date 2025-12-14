@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <!-- include CSS (adjust path as needed) -->
+  <link rel="stylesheet" href="/public/location-widget.css">
+</head>
+<body>
+  <!-- If your app has a header element, you can append the widget to body; CSS pins it top-left -->
+  <div id="app-root"></div>
+
+  <!-- include the widget script (adjust path as needed) -->
+  <script src="/public/location-widget.js" defer></script>
+  <script>
+    // create the widget after script loads
+    window.addEventListener('load', () => {
+      // if you want it inside a specific container: createLocationWidget({ containerId: 'app-root' })
+      window.createLocationWidget({ containerId: null });
+
+      // Example: listen for chosen location
+      window.addEventListener('location-selected', (ev) => {
+        const d = ev.detail;
+        console.log('Location chosen:', d);
+        // d = { display_name, lat, lon }
+        // TODO: use lat/lon to fetch tide data and update UI
+      });
+    });
+  </script>
+</body>
+</html>
