@@ -191,6 +191,17 @@
             });
         }
 
+        function clearAndShowLoading() {
+            document.getElementById('current-weather').innerHTML = 'Loading weather...';
+            document.getElementById('current-weather').classList.add('loading');
+            document.getElementById('current-swell').innerHTML = 'Loading marine data...';
+            document.getElementById('current-swell').classList.add('loading');
+            document.getElementById('daily-forecast').innerHTML = '';
+            document.getElementById('daily-swell').innerHTML = '';
+            document.getElementById('tide-list').innerHTML = 'Loading tides...';
+            document.getElementById('tide-list').classList.add('loading');
+        }
+
         // Initialize location widget on page load
         window.addEventListener('load', () => {
             window.createLocationWidget({ containerId: null });
@@ -204,17 +215,12 @@
                 lon = parseFloat(d.lon);
                 
                 // Clear existing data and reload
-                document.getElementById('current-weather').innerHTML = 'Loading weather...';
-                document.getElementById('current-weather').classList.add('loading');
-                document.getElementById('current-swell').innerHTML = 'Loading marine data...';
-                document.getElementById('current-swell').classList.add('loading');
-                document.getElementById('daily-forecast').innerHTML = '';
-                document.getElementById('daily-swell').innerHTML = '';
-                document.getElementById('tide-list').innerHTML = 'Loading tides...';
-                document.getElementById('tide-list').classList.add('loading');
+                clearAndShowLoading();
                 
-                // Update header with location name (first part before comma)
-                const locationName = d.display_name.split(',')[0];
+                // Update header with location name (first part before comma, or full name if no comma)
+                const locationName = d.display_name.includes(',') 
+                    ? d.display_name.split(',')[0].trim() 
+                    : d.display_name;
                 document.querySelector('header h1').textContent = locationName;
                 
                 // Fetch new data for the selected location
