@@ -136,7 +136,7 @@
 
             const response = await fetch(`${NOMINATIM_URL}?${params}`, {
                 headers: {
-                    'User-Agent': window.LOCATION_WIDGET_USER_AGENT || 'LocationWidget/1.0' // Nominatim requires a User-Agent
+                    'User-Agent': window.LOCATION_WIDGET_USER_AGENT || 'LocationWidget/1.0 (https://github.com)' // Nominatim requires a User-Agent
                 }
             });
 
@@ -171,7 +171,11 @@
         }
 
         showError(message) {
-            this.suggestionsContainer.innerHTML = `<div class="location-widget-error">${message}</div>`;
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'location-widget-error';
+            errorDiv.textContent = message;
+            this.suggestionsContainer.innerHTML = '';
+            this.suggestionsContainer.appendChild(errorDiv);
             this.suggestionsContainer.classList.add('visible');
         }
 
