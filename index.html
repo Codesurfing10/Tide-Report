@@ -90,7 +90,8 @@
 
         <section id="tides">
             <h2>Tide Predictions (Next 7 Days)</h2>
-            <p>Based on NOAA data for La Jolla</p>
+            <p>Based on NOAA data for La Jolla (default station)</p>
+            <p style="font-size: 0.9em; opacity: 0.8;">Note: Tide data location does not change with widget selection</p>
             <ul id="tide-list" class="loading">Loading tides...</ul>
         </section>
     </div>
@@ -114,6 +115,11 @@
         // Listen for location changes
         window.addEventListener('location-selected', function(event) {
             const location = event.detail;
+            if (!location || typeof location.lat === 'undefined' || typeof location.lon === 'undefined') {
+                console.error('Invalid location data');
+                return;
+            }
+            
             console.log('Location changed to:', location);
             
             // Update coordinates
@@ -122,8 +128,10 @@
             
             // Update header with new location
             const headerTitle = document.querySelector('header h1');
-            const displayName = location.display_name.split(',')[0]; // Get first part of name
-            headerTitle.textContent = displayName;
+            if (headerTitle && location.display_name) {
+                const displayName = location.display_name.split(',')[0]; // Get first part of name
+                headerTitle.textContent = displayName;
+            }
             
             // Refresh all data for new location
             refreshAllData();

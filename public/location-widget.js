@@ -48,8 +48,15 @@
             return [];
         }
 
+        // Validate query input
+        const trimmedQuery = query.trim();
+        if (trimmedQuery.length > 200) {
+            console.warn('Query too long, truncating');
+            return [];
+        }
+
         try {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(trimmedQuery)}&limit=5`;
             const response = await fetch(url, {
                 headers: {
                     'User-Agent': 'TideReport/1.0'
@@ -61,7 +68,15 @@
                 return [];
             }
 
-            return await response.json();
+            const results = await response.json();
+            
+            // Validate response data
+            if (!Array.isArray(results)) {
+                console.error('Invalid API response format');
+                return [];
+            }
+
+            return results;
         } catch (error) {
             console.error('Location search error:', error);
             return [];
