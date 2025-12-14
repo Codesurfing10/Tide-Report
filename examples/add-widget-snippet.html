@@ -139,6 +139,11 @@
 &lt;!-- Add container element --&gt;
 &lt;div id="location-widget"&gt;&lt;/div&gt;
 
+&lt;!-- Optional: Configure User-Agent for Nominatim --&gt;
+&lt;script&gt;
+  window.LOCATION_WIDGET_USER_AGENT = 'YourApp/1.0';
+&lt;/script&gt;
+
 &lt;!-- Listen for location selection --&gt;
 &lt;script&gt;
   window.addEventListener('location-selected', (event) =&gt; {

@@ -87,7 +87,7 @@
             this.currentQuery = query;
 
             // Check if input looks like coordinates (lat, lon)
-            const coordPattern = /^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/;
+            const coordPattern = /^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/;
             const coordMatch = query.match(coordPattern);
 
             if (coordMatch) {
@@ -136,7 +136,7 @@
 
             const response = await fetch(`${NOMINATIM_URL}?${params}`, {
                 headers: {
-                    'User-Agent': 'TideReport/1.0' // Nominatim requires a User-Agent
+                    'User-Agent': window.LOCATION_WIDGET_USER_AGENT || 'LocationWidget/1.0' // Nominatim requires a User-Agent
                 }
             });
 
@@ -197,12 +197,6 @@
             });
             
             window.dispatchEvent(event);
-            
-            console.log('Location selected:', {
-                display_name: location.display_name,
-                lat: location.lat,
-                lon: location.lon
-            });
         }
     }
 
