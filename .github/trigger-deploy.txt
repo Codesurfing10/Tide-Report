@@ -1,0 +1,5 @@
+Trigger GitHub Pages deployment
+
+Triggered by Codesurfing10 on 2025-12-14 to start the deploy workflow.
+
+This file can be safely removed after deployment.
