@@ -14,6 +14,9 @@
     <link rel="apple-touch-icon" href="icon-180.png">
     <link rel="manifest" href="manifest.json">
 
+    <!-- Location Widget CSS -->
+    <link rel="stylesheet" href="public/location-widget.css">
+
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -93,14 +96,16 @@
 
     <footer>Data: Open-Meteo & NOAA • Updated live</footer>
 
+    <!-- Location Widget Script -->
+    <script src="public/location-widget.js"></script>
     <script>
         // Register service worker for offline/PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
 
-        const lat = 32.9933;
-        const lon = -117.2705;
+        let lat = 32.9933;
+        let lon = -117.2705;
         const noaaStation = "9410230";
 
         function getDirectionArrow(deg) {
@@ -185,6 +190,39 @@
                 list.appendChild(li);
             });
         }
+
+        // Initialize location widget on page load
+        window.addEventListener('load', () => {
+            window.createLocationWidget({ containerId: null });
+            
+            // Listen for location selection and update tide data
+            window.addEventListener('location-selected', (ev) => {
+                const d = ev.detail;
+                console.log('Location chosen:', d);
+                // Update lat/lon and refresh data
+                lat = parseFloat(d.lat);
+                lon = parseFloat(d.lon);
+                
+                // Clear existing data and reload
+                document.getElementById('current-weather').innerHTML = 'Loading weather...';
+                document.getElementById('current-weather').classList.add('loading');
+                document.getElementById('current-swell').innerHTML = 'Loading marine data...';
+                document.getElementById('current-swell').classList.add('loading');
+                document.getElementById('daily-forecast').innerHTML = '';
+                document.getElementById('daily-swell').innerHTML = '';
+                document.getElementById('tide-list').innerHTML = 'Loading tides...';
+                document.getElementById('tide-list').classList.add('loading');
+                
+                // Update header with location name (first part before comma)
+                const locationName = d.display_name.split(',')[0];
+                document.querySelector('header h1').textContent = locationName;
+                
+                // Fetch new data for the selected location
+                fetchWeather();
+                fetchMarine();
+                fetchTides();
+            });
+        });
 
         fetchWeather();
         fetchMarine();
