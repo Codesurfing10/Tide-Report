@@ -1,60 +1,98 @@
-/* Top-left fixed location widget */
-#location-widget {
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  z-index: 9999;
-  width: 280px;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-  border-radius: 8px;
-  background: #fff;
-  overflow: visible;
+/* Location Widget - Top-left positioning */
+.location-widget-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-#location-widget .lw-inner {
-  padding: 8px;
+.location-widget-input {
+    width: 300px;
+    padding: 12px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-#location-widget input.lw-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 8px 10px;
-  border: 1px solid #dcdcdc;
-  border-radius: 6px;
-  font-size: 14px;
-  outline: none;
+.location-widget-input:focus {
+    border-color: #4A90E2;
+    box-shadow: 0 2px 12px rgba(74, 144, 226, 0.3);
 }
 
-#location-widget input.lw-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+.location-widget-input::placeholder {
+    color: #999;
 }
 
-#location-widget .lw-suggestions {
-  margin-top: 6px;
-  max-height: 220px;
-  overflow-y: auto;
-  list-style: none;
-  padding: 6px;
-  border-top: 1px solid #f0f0f0;
+.location-widget-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: none;
 }
 
-#location-widget .lw-suggestions li {
-  padding: 6px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
-  color: #111827;
+.location-widget-suggestions.visible {
+    display: block;
 }
 
-#location-widget .lw-suggestions li:hover,
-#location-widget .lw-suggestions li.active {
-  background: #f3f4f6;
+.location-widget-suggestion {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    color: #333;
+    transition: background-color 0.15s;
 }
 
-#location-widget .lw-hint {
-  margin-top: 6px;
-  font-size: 12px;
-  color: #6b7280;
+.location-widget-suggestion:hover {
+    background-color: #f5f5f5;
+}
+
+.location-widget-suggestion:last-child {
+    border-bottom: none;
+}
+
+.location-widget-suggestion strong {
+    color: #4A90E2;
+}
+
+.location-widget-loading {
+    padding: 12px 16px;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    font-size: 13px;
+}
+
+.location-widget-error {
+    padding: 12px 16px;
+    text-align: center;
+    color: #d9534f;
+    font-size: 13px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .location-widget-container {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+    }
+    
+    .location-widget-input {
+        width: 100%;
+        max-width: calc(100vw - 20px);
+    }
 }
