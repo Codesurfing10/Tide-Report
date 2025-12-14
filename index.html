@@ -192,14 +192,26 @@
         }
 
         function clearAndShowLoading() {
-            document.getElementById('current-weather').innerHTML = 'Loading weather...';
-            document.getElementById('current-weather').classList.add('loading');
-            document.getElementById('current-swell').innerHTML = 'Loading marine data...';
-            document.getElementById('current-swell').classList.add('loading');
-            document.getElementById('daily-forecast').innerHTML = '';
-            document.getElementById('daily-swell').innerHTML = '';
-            document.getElementById('tide-list').innerHTML = 'Loading tides...';
-            document.getElementById('tide-list').classList.add('loading');
+            const currentWeather = document.getElementById('current-weather');
+            const currentSwell = document.getElementById('current-swell');
+            const dailyForecast = document.getElementById('daily-forecast');
+            const dailySwell = document.getElementById('daily-swell');
+            const tideList = document.getElementById('tide-list');
+            
+            if (currentWeather) {
+                currentWeather.innerHTML = 'Loading weather...';
+                currentWeather.classList.add('loading');
+            }
+            if (currentSwell) {
+                currentSwell.innerHTML = 'Loading marine data...';
+                currentSwell.classList.add('loading');
+            }
+            if (dailyForecast) dailyForecast.innerHTML = '';
+            if (dailySwell) dailySwell.innerHTML = '';
+            if (tideList) {
+                tideList.innerHTML = 'Loading tides...';
+                tideList.classList.add('loading');
+            }
         }
 
         // Initialize location widget on page load
