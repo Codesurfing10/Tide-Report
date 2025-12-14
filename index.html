@@ -216,11 +216,15 @@
 
         // Initialize location widget on page load
         window.addEventListener('load', () => {
-            window.createLocationWidget({ containerId: null });
+            if (window.createLocationWidget) {
+                window.createLocationWidget({ containerId: null });
+            }
             
             // Listen for location selection and update tide data
             window.addEventListener('location-selected', (ev) => {
                 const d = ev.detail;
+                if (!d) return;
+                
                 console.log('Location chosen:', d);
                 
                 // Update lat/lon and refresh data (validate coordinates)
@@ -237,12 +241,14 @@
                 clearAndShowLoading();
                 
                 // Update header with location name (first part before comma, or full name if no comma)
-                const locationName = d.display_name.includes(',') 
-                    ? d.display_name.split(',')[0].trim() 
-                    : d.display_name;
-                const headerEl = document.querySelector('header h1');
-                if (headerEl) {
-                    headerEl.textContent = locationName;
+                if (d.display_name) {
+                    const locationName = d.display_name.includes(',') 
+                        ? d.display_name.split(',')[0].trim() 
+                        : d.display_name;
+                    const headerEl = document.querySelector('header h1');
+                    if (headerEl) {
+                        headerEl.textContent = locationName;
+                    }
                 }
                 
                 // Fetch new data for the selected location
