@@ -210,9 +210,16 @@
             window.addEventListener('location-selected', (ev) => {
                 const d = ev.detail;
                 console.log('Location chosen:', d);
-                // Update lat/lon and refresh data
-                lat = parseFloat(d.lat);
-                lon = parseFloat(d.lon);
+                
+                // Update lat/lon and refresh data (validate coordinates)
+                const newLat = parseFloat(d.lat);
+                const newLon = parseFloat(d.lon);
+                if (isNaN(newLat) || isNaN(newLon)) {
+                    console.error('Invalid coordinates:', d.lat, d.lon);
+                    return;
+                }
+                lat = newLat;
+                lon = newLon;
                 
                 // Clear existing data and reload
                 clearAndShowLoading();
@@ -221,7 +228,10 @@
                 const locationName = d.display_name.includes(',') 
                     ? d.display_name.split(',')[0].trim() 
                     : d.display_name;
-                document.querySelector('header h1').textContent = locationName;
+                const headerEl = document.querySelector('header h1');
+                if (headerEl) {
+                    headerEl.textContent = locationName;
+                }
                 
                 // Fetch new data for the selected location
                 fetchWeather();
